@@ -38,4 +38,6 @@ public class Invitation {
 
     private Date expiresIn;
 
+    private String fileName;
+
 }

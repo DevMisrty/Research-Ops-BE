@@ -63,7 +63,9 @@ public class ResearcherServiceImplementation implements ResearcherService {
                 .address(invitation.getAddress())
                 .state(invitation.getState())
                 .city(invitation.getCity())
-                .zip(invitation.getZip()).build();
+                .zip(invitation.getZip())
+                .fileName(invitation.getFileName())
+                .build();
 
         ResearcherProfile profile = ResearcherProfile.builder()
                 .experience(invitation.getExperience()).assignCaseIds(new ArrayList<>())

@@ -21,7 +21,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.UUID;
 
 
@@ -78,21 +80,27 @@ public class AdminController {
     // react app is build change the data, to the correct route according to the react router.
     //
     @PostMapping("/create/casemanager")
-    public ResponseEntity<?> createCaseManager( @RequestBody CreateUserRequestDto requestDto){
+    public ResponseEntity<?> createCaseManager(
+            @RequestPart CreateUserRequestDto requestDto,
+            @RequestPart MultipartFile file ) throws IOException {
 
         log.info("CREATING THE INVITATION ENTITY FOR, {}",requestDto );
 
-        UUID token = invitationService.createAndSaveInvitation(requestDto);
+//        UUID token = invitationService.createAndSaveInvitation(requestDto);
+        UUID token = invitationService.createAndSaveInvitationWithProgileImage(requestDto, file);
         log.info("Token generated for request, {}", token);
 
         return ApiResponse.getResponse(HttpStatus.OK, Messages.MAIL_SEND, token);
     }
 
     @PostMapping("/create/researcher")
-    public ResponseEntity<?> createResearcher(@Valid @RequestBody CreateResearcherRequestDto requestDto){
+    public ResponseEntity<?> createResearcher(
+            @RequestPart CreateResearcherRequestDto requestDto,
+            @RequestPart MultipartFile file) throws IOException {
 
         log.info("CREATING THE INVITATION ENTITY FOR, {}",requestDto );
-        UUID token = invitationService.createAndSaveInvitationForRes(requestDto);
+//        UUID token = invitationService.createAndSaveInvitationForRes(requestDto);
+        UUID token = invitationService.createAndSaveInvitationForResWithFile(requestDto, file);
         log.info("Token generated for request, {}", token   );
 
         return ApiResponse.getResponse(HttpStatus.OK, Messages.MAIL_SEND, token);

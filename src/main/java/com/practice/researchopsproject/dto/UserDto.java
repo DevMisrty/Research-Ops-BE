@@ -14,5 +14,6 @@ public class UserDto {
     private String id;
     private String email;
     private Role role;
+    private String fileName;
 
 }

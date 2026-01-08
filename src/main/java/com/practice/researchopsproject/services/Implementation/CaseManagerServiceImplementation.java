@@ -67,7 +67,9 @@ public class CaseManagerServiceImplementation implements CaseManagerService {
                 .address(invitation.getAddress())
                 .state(invitation.getState())
                 .city(invitation.getCity())
-                .zip(invitation.getZip()).build();
+                .zip(invitation.getZip())
+                .fileName(invitation.getFileName())
+                .build();
 
         CaseManagerProfile profile = CaseManagerProfile.builder()
                 .user(users).assignCaseId(new ArrayList<>())

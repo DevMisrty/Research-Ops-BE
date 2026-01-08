@@ -6,6 +6,7 @@ import com.practice.researchopsproject.entity.Role;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -16,6 +17,8 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtUtilities {
 
+    @Value("${file.full-image-url}")
+    private String fullImageUrl;
 
     private final String key = "ahslkjghakjdshbfakjhkjhdlndbvcljhagbdsjhglfjhadjncvljhavdsjhcvjlhadvscljhvalhj";
 
@@ -24,9 +27,16 @@ public class JwtUtilities {
     }
 
     public String getAccessToken(UserDto dto){
+
+        String imageUrl = "";
+        if(dto.getFileName()!=null){
+            imageUrl = fullImageUrl.concat(dto.getFileName());
+        }
+
         return Jwts.builder()
                 .subject(dto.getEmail())
                 .claim("role", dto.getRole().toString())
+                .claim("fileName", imageUrl)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 *  60 * 24 ))
                 .signWith(getKey())

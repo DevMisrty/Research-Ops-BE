@@ -1,6 +1,7 @@
 package com.practice.researchopsproject.entity;
 
 import lombok.*;
+import org.bson.types.Binary;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -36,5 +37,7 @@ public class Users {
     private String state;
     private String city;
     private Long zip;
+
+    private String fileName;
 
 }

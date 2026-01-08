@@ -89,6 +89,7 @@ public class Messages {
     public static final String RESEARCHERPROFILE_FETCHED = "Researcher profile fetched successfully. ";
     public static final String CASEMANAGER_FETCHED = "Case manager profile fetched successfully. ";
     public static final String CANT_PERFROM_ON_ADMIN = "Cant perform such operation on admin user";
+    public static final String FILE_EMPTY = "File cant be empty";
 
     //* ===================== Validation Messages ===================================*//
 
