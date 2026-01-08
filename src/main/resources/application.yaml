@@ -1,0 +1,31 @@
+spring:
+  data:
+    mongodb:
+      auto-index-creation: true
+  mongodb:
+    uri: mongodb://localhost:27017/researchops
+    representation:
+      uuid: standard
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: dev.mistry.agileinfoways@gmail.com
+    password: ptvr npkv jhsq wykh
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
+
+logging:
+  level:
+    org.springframework.data.mongodb: DEBUG
+

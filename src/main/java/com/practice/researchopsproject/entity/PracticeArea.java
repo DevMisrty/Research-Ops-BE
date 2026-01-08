@@ -1,0 +1,59 @@
+package com.practice.researchopsproject.entity;
+
+public enum PracticeArea {
+
+    // Copyright Specific
+    COPYRIGHT_INFRINGEMENT,
+    DIGITAL_COPYRIGHT,
+    COPYRIGHT_REGISTRATION,
+
+    // Media & Entertainment
+    MUSIC_COPYRIGHT,
+    FILM_AND_VIDEO,
+    BROADCASTING_RIGHTS,
+    PUBLISHING_RIGHTS,
+    PHOTOGRAPHY,
+    DIGITAL_MEDIA,
+
+    // Technology & Software
+    SOFTWARE_COPYRIGHT,
+    DIGITAL_PIRACY,
+    OPEN_SOURCE_LICENSING,
+    SOFTWARE_LICENSING,
+    WEBSITE_CONTENT,
+
+    // Design & Creative
+    GRAPHIC_DESIGN,
+    INDUSTRIAL_DESIGN,
+    ARCHITECTURAL_WORKS,
+    FASHION_DESIGN,
+
+    // Related IP Areas
+    TRADEMARK_INFRINGEMENT,
+    PATENT_INFRINGEMENT,
+    TRADE_SECRETS,
+    TRADE_DRESS,
+
+    // Specific Violations
+    COUNTERFEITING,
+    PLAGIARISM,
+    DMCA_TAKEDOWN,
+    FAIR_USE_DISPUTES,
+
+    // Commercial
+    LICENSING_DISPUTES,
+    ROYALTY_DISPUTES,
+    MERCHANDISING_RIGHTS,
+    FRANCHISE_AGREEMENTS,
+
+    // Emerging Areas
+    NFT_AND_BLOCKCHAIN,
+    AI_GENERATED_CONTENT,
+    SOCIAL_MEDIA_COPYRIGHT,
+    STREAMING_RIGHTS,
+
+    // Other
+    GENERAL_IP_LITIGATION,
+    OTHER
+
+}
