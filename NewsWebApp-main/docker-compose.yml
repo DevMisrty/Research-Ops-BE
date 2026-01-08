@@ -1,0 +1,54 @@
+services:
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: weatheremailservice
+    networks:
+      app_network:
+    volumes:
+      - mysql_volume:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+
+
+  redis:
+    image: redis:7.2
+    ports:
+      - "6379:6379"
+    networks:
+      app_network:
+    volumes:
+      - redis_volume:/data
+    healthcheck:
+      test: [ "CMD","redis-cli","ping" ]
+      interval: 13s
+      start_period: 5s
+      timeout: 4s
+
+
+  app:
+    build: .
+    ports:
+      - "8088:8080"
+    networks:
+      app_network:
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  mysql_volume:
+  redis_volume:

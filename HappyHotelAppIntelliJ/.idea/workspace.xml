@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="3d34d056-6ec2-436d-954c-cbea98cca01f" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JUnit5 Test Class" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="31VDAzk10FpPxT4wdFRXtzhQANN" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "JUnit.BookingServiceTest.executor": "Run",
+    "JUnit.BookingServiceTest.test1.executor": "Run",
+    "JUnit.BookingServiceTest.test_with_multiple_then_returns.executor": "Run",
+    "JUnit.CurrencyConverterTest.should_Expect_Only_double_Arguments (1).executor": "Run",
+    "JUnit.CurrencyConverterTest.should_Expect_Only_double_Arguments.executor": "Run",
+    "JUnit.booking in happyhotel.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
+    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/agilecpu116/Desktop/SpringBoot Workspace 1/HappyHotelAppIntelliJ",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.0",
+    "project.structure.side.proportion": "0.0",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CreateTestDialog.Recents.Supers">
+      <recent name="" />
+    </key>
+    <key name="CreateTestDialog.RecentsKey">
+      <recent name="com.mockitotutorial.happyhotel.booking" />
+    </key>
+  </component>
+  <component name="RunManager" selected="JUnit.CurrencyConverterTest.should_Expect_Only_double_Arguments (1)">
+    <configuration name="BookingServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="happyhotel" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.mockitotutorial.happyhotel.booking.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.mockitotutorial.happyhotel.booking" />
+      <option name="MAIN_CLASS_NAME" value="com.mockitotutorial.happyhotel.booking.BookingServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="BookingServiceTest.test_that_throws_an_Exception" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="happyhotel" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.mockitotutorial.happyhotel.booking.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.mockitotutorial.happyhotel.booking" />
+      <option name="MAIN_CLASS_NAME" value="com.mockitotutorial.happyhotel.booking.BookingServiceTest" />
+      <option name="METHOD_NAME" value="test_that_throws_an_Exception" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CurrencyConverterTest.should_Expect_Only_double_Arguments (1)" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="happyhotel" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.mockitotutorial.happyhotel.booking.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.mockitotutorial.happyhotel.booking" />
+      <option name="MAIN_CLASS_NAME" value="com.mockitotutorial.happyhotel.booking.CurrencyConverterTest" />
+      <option name="METHOD_NAME" value="should_Expect_Only_double_Arguments(double,double)" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CurrencyConverterTest.should_Expect_Only_double_Arguments" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="happyhotel" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.mockitotutorial.happyhotel.booking.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.mockitotutorial.happyhotel.booking" />
+      <option name="MAIN_CLASS_NAME" value="com.mockitotutorial.happyhotel.booking.CurrencyConverterTest" />
+      <option name="METHOD_NAME" value="should_Expect_Only_double_Arguments" />
+      <option name="TEST_OBJECT" value="method" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="booking in happyhotel" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="happyhotel" />
+      <option name="TEST_OBJECT" value="directory" />
+      <dir value="$PROJECT_DIR$/HappyHotelApp/src/test/java/com/mockitotutorial/happyhotel/booking" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.CurrencyConverterTest.should_Expect_Only_double_Arguments (1)" />
+        <item itemvalue="JUnit.booking in happyhotel" />
+        <item itemvalue="JUnit.CurrencyConverterTest.should_Expect_Only_double_Arguments" />
+        <item itemvalue="JUnit.BookingServiceTest.test_that_throws_an_Exception" />
+        <item itemvalue="JUnit.BookingServiceTest" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.23892.409" />
+        <option value="bundled-js-predefined-d6986cc7102b-e03c56caf84a-JavaScript-IU-252.23892.409" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="3d34d056-6ec2-436d-954c-cbea98cca01f" name="Changes" comment="" />
+      <created>1755600206283</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1755600206283</updated>
+      <workItem from="1755600207525" duration="2683000" />
+      <workItem from="1755660448811" duration="7207000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

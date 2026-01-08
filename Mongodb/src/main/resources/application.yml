@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: Mongodb
+  mongodb:
+    # DatabaseType :// username:password@host:port/database?authSource=admin
+    uri: mongodb://admin:password@localhost:27017/db?authSource=admin
+  data:
+    mongodb:
+      auto-index-creation: true
+
+logging:
+  level:
+    org.springframework.data.mongodb.core.MongoTemplate: DEBUG

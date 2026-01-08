@@ -1,0 +1,39 @@
+version: "1.0"
+
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - expense-tracker-network
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://admin:password@mongo:27017/expenseTrackerdb?authSource=admin
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:8.0
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: expenseTrackerdb
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - expense-tracker-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "'db.runCommand({ ping: 1 }).ok'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  expense-tracker-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:

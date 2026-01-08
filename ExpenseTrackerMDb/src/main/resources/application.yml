@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: ExpenseTrackerMDb
+
+  data:
+    mongodb:
+      auto-index-creation: true
+  mongodb:
+    uri: mongodb://admin:password@mongo:27017/expenseTrackerdb?authSource=admin
+    authentication-database: admin
+    username: admin
+    password: password
+    host: mongo
+    port: 27017
+    database: expenseTrackerdb
