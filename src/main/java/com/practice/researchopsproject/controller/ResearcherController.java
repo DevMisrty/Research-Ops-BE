@@ -13,6 +13,7 @@ import com.practice.researchopsproject.utilities.JwtUtilities;
 import com.practice.researchopsproject.utilities.Messages;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.apache.coyote.Response;
 import org.modelmapper.ModelMapper;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/rs")
 @RequiredArgsConstructor
@@ -37,6 +39,7 @@ public class ResearcherController {
 
         service.createResearchProfile(token, requestDto);
 
+        log.info("Researcher profile has been created, Invitation token as {}.", token);
         return ApiResponse.getResponse(HttpStatus.CREATED, Messages.RESEARCHER_CREATED, "researcher profile created");
     }
 
@@ -60,6 +63,7 @@ public class ResearcherController {
         Page<CaseDto> response =
                 service.getListOfAssignedCases(page, limit, sortBy, dir, searchBy, email);
 
+        log.info("List of Cases Assigned to Researcher with email {}, has been fetched with, page {}, limit {}, sortBy {}, dir {}, and searchBy {}. ", email, page, limit, sortBy, dir, searchBy);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.CASES_FETCHED_SUCCESSFULLY, response);
     }
 

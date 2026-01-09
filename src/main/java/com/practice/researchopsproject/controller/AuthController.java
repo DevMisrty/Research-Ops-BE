@@ -35,7 +35,6 @@ public class AuthController {
     @PostMapping("/admin/register")
     private ResponseEntity<?> RegisterAdmin(@Valid @RequestBody UserRequestDto requestDto){
 
-        log.info("requestDto, {}", requestDto);
         var response = usersService.saveUsers(requestDto);
         log.info("Registered the User with email, {}", requestDto.getEmail());
 
@@ -57,6 +56,7 @@ public class AuthController {
         if( !usersService.checkProfileIsActive(requestDto.getEmail()))
             throw new UsernameNotFoundException(Messages.LOGIN_FAILED);
 
+        log.info("Login credentials has been successfully verified, and Token has been generated, for email, {} ", requestDto.getEmail());
         return ApiResponse.getResponse(HttpStatus.ACCEPTED, Messages.LOGIN_SUCCESS, tokens);
     }
 
@@ -66,6 +66,8 @@ public class AuthController {
         String email = utilities.getEmailFromToken(token);
 
         var tokens = getTokens(email);
+
+        log.info("RefreshToken has been used, and new access token has been created and send.");
         return ApiResponse.getResponse(HttpStatus.CREATED, Messages.TOKEN_GENERATED, tokens);
 
     }
@@ -80,6 +82,8 @@ public class AuthController {
         HashMap<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
+        tokens.put("role", user.getRole().toString());
+        tokens.put("fileName", user.getFileName());
         return tokens;
     }
 

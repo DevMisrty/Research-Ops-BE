@@ -34,8 +34,6 @@ import org.springframework.web.bind.annotation.*;
 public class CaseManagerController {
 
     private final CaseManagerService service;
-    private final InvitationService invitationService;
-    private final ModelMapper mapper;
     private final JwtUtilities jwtUtilities;
     private final CaseService caseService;
 
@@ -48,6 +46,7 @@ public class CaseManagerController {
 
         service.createCaseManager(token, requestDto);
 
+        log.info("CaseManager profile has been created, Invitation token as {}.", token);
         return ApiResponse.getResponse(HttpStatus.CREATED, Messages.CASEMANAGER_CREATED, null);
     }
 
@@ -64,6 +63,7 @@ public class CaseManagerController {
 
         Case response = service.createCase(requestDto, email);
 
+        log.info("New Case Has been created by CaseManager with email, {}", email);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_CREATED, Mappers.mapCaseToCaseDto(response));
     }
 
@@ -79,6 +79,7 @@ public class CaseManagerController {
 
         Page<ResearcherResponseDto> researchers = service.getResearchers(page, limit);
 
+        log.info("List of Active Researcher profile has been fetched successfully, with page {}, limit {}, searchBy {}. ", page , limit, searchBy);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.LIST_OF_RESEARCHER_FETCHED, researchers);
     }
 
@@ -96,6 +97,8 @@ public class CaseManagerController {
         String email = jwtUtilities.getEmailFromToken(token);
 
         Case aCase = service.editCase(caseDto, email, id);
+
+        log.info("Case with CaseId {}, has been updated successfully, with the CaseManager email as {}", id, email);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_UPDATED, Mappers.mapCaseToCaseDto(aCase) );
 
     }
@@ -121,6 +124,7 @@ public class CaseManagerController {
         Page<CaseDto> response
                 = caseService.getListOfCasesByCreator(page, limit, sortBy, dir, searchBy, email);
 
+        log.info("List of Cases Created By CaseManager {}, has been fetched with page {}, limit {}, sortBy {}, dir {}, searchBy {}.", email, page, limit, sortBy, dir, searchBy);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.CASES_FETCHED_SUCCESSFULLY, response);
     }
 

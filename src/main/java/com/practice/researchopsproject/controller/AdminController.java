@@ -47,7 +47,7 @@ public class AdminController {
             @RequestParam(required = false, defaultValue = "name") String sortBy ,
             @RequestParam(required = false, defaultValue = "ASC") String direction,
             @RequestParam(required = false) String searchBy
-            ){
+    ){
 
         if(page < 0 )page =0;
         if(limit <= 0)limit =10;
@@ -55,6 +55,8 @@ public class AdminController {
         Page<CaseManagerResponseDto> response =
                 usersService.getListOfCaseManager(page, limit, sortBy, direction, searchBy);
 
+        log.info("List of Case Manager fetched, from /api/admin/casemanager, with page {}, limit {}, sortBy {}, direction,{}",
+                page, limit, sortBy, direction);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.LIST_OF_CASEMANAGER_FETCHED, response);
     }
 
@@ -71,6 +73,10 @@ public class AdminController {
 
         Page<ResearcherResponseDto> response =
                 usersService.getListofResearcher(page, limit, sortBy, direction, searchBy);
+
+        log.info("List of Researcher fetched, from /api/admin/researcher, with page {}, limit {}, sortBy {}, direction,{}",
+                page, limit, sortBy, direction);
+
 
         return ApiResponse.getResponse(HttpStatus.OK, Messages.LIST_OF_RESEARCHER_FETCHED, response);
 
@@ -89,6 +95,8 @@ public class AdminController {
 //        UUID token = invitationService.createAndSaveInvitation(requestDto);
         UUID token = invitationService.createAndSaveInvitationWithProgileImage(requestDto, file);
         log.info("Token generated for request, {}", token);
+
+        log.info("New CaseManager profile has been saved inside the Invitation Entity, with token id as, {} ", token);
 
         return ApiResponse.getResponse(HttpStatus.OK, Messages.MAIL_SEND, token);
     }
@@ -111,6 +119,8 @@ public class AdminController {
     public ResponseEntity<?> activateUserProfile(@PathVariable String id){
 
         UserResponseDto response = usersService.activateUserProfile(id);
+
+        log.info("User profile has been updated as Active, for User id, {}", response.getId());
         return ApiResponse.getResponse(HttpStatus.ACCEPTED, Messages.PROFILE_SET_ACTIVE, response);
     }
 
@@ -118,6 +128,8 @@ public class AdminController {
     public ResponseEntity<?> deactivateUserProfile(@PathVariable String id){
 
         UserResponseDto response = usersService.deactivateUserProfile(id);
+
+        log.info("User profile has been updated as InActive, for UserId, {}",response.getId());
         return ApiResponse.getResponse(HttpStatus.ACCEPTED, Messages.PROFILE_SET_NOACTIVE, response);
     }
 
@@ -135,6 +147,7 @@ public class AdminController {
 
         Page<CaseDto> response = caseService.getListOfCases(page, limit, sortBy, dir, searchBy);
 
+        log.info("List of Cases has been fetched, with page {}, limit {}, sortBy {}, dir {}, searchBy {}.", page, limit, sortBy, dir, searchBy);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.CASES_FETCHED_SUCCESSFULLY, response);
     }
 
@@ -143,6 +156,7 @@ public class AdminController {
 
         CaseDto caseDto = caseManagerService.editCaseByAdmin(requestDto, id);
 
+        log.info("Case Details has been updated, Case with case Id {}", caseDto.getCaseId());
         return ApiResponse.getResponse(HttpStatus.OK , Messages.CASE_UPDATED, caseDto );
     }
 
