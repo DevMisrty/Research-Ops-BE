@@ -3,10 +3,12 @@ package com.practice.researchopsproject.controller;
 import com.practice.researchopsproject.dto.UserDto;
 import com.practice.researchopsproject.dto.request.LoginRequestDto;
 import com.practice.researchopsproject.dto.request.UserRequestDto;
+import com.practice.researchopsproject.exception.customException.InvaliTokenException;
 import com.practice.researchopsproject.services.UsersService;
 import com.practice.researchopsproject.utilities.ApiResponse;
 import com.practice.researchopsproject.utilities.JwtUtilities;
 import com.practice.researchopsproject.utilities.Messages;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,18 +54,23 @@ public class AuthController {
                 )
         );
 
-        var tokens = getTokens(requestDto.getEmail());
+
         if( !usersService.checkProfileIsActive(requestDto.getEmail()))
             throw new UsernameNotFoundException(Messages.LOGIN_FAILED);
+
+        var tokens = getTokens(requestDto.getEmail());
 
         log.info("Login credentials has been successfully verified, and Token has been generated, for email, {} ", requestDto.getEmail());
         return ApiResponse.getResponse(HttpStatus.ACCEPTED, Messages.LOGIN_SUCCESS, tokens);
     }
 
     @PostMapping("/refresh")
-    private ResponseEntity<?> refreshToken(@RequestParam String token){
+    private ResponseEntity<?> refreshToken(@RequestBody String token) throws InvaliTokenException {
 
         String email = utilities.getEmailFromToken(token);
+        if (!utilities.isValidToken(token)) {
+            throw new InvaliTokenException(Messages.INVALID_TOKEN);
+        }
 
         var tokens = getTokens(email);
 
@@ -71,6 +78,7 @@ public class AuthController {
         return ApiResponse.getResponse(HttpStatus.CREATED, Messages.TOKEN_GENERATED, tokens);
 
     }
+
 
 
     private Map<String, String> getTokens(String email){

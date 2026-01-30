@@ -29,7 +29,7 @@ public class CreateResearcherRequestDto {
 
     @NotNull(message = "zip cant be null")
     @Pattern(
-            regexp = "^[1-9][0-9]{5}$",
+            regexp = "^[1-9][0-9]{7}$",
             message = "Enter proper zip code"
     )
     private String zip;

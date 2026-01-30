@@ -87,7 +87,7 @@ public class UsersServiceImplementation implements UsersService {
         }else {
             sort = Sort.by(sortBy).descending();
         }
-        PageRequest pageRequest = PageRequest.of(page, limit, sort);
+        PageRequest pageRequest = PageRequest.of(page-1, limit, sort);
 
         // 2. get the list of CaseManager based on searchBy keyword.
         Page<CaseManagerProfile> all = null;
@@ -102,7 +102,8 @@ public class UsersServiceImplementation implements UsersService {
         }
 
         // 3. convert Page<CaseManager> to Page<CaseManagerResponseDto>.
-        Page<CaseManagerResponseDto> response = all.map( profile -> Mappers.mapCaseManagerToCaseManagerResponseDto(profile));
+        Page<CaseManagerResponseDto> response =
+                all.map( profile -> Mappers.mapCaseManagerToCaseManagerResponseDto(profile));
 
         return response;
     }
@@ -117,7 +118,7 @@ public class UsersServiceImplementation implements UsersService {
         }else {
             sort = Sort.by(sortBy).descending();
         }
-        PageRequest pageRequest = PageRequest.of(page, limit, sort);
+        PageRequest pageRequest = PageRequest.of(page-1, limit, sort);
 
         // 2. get the list of Researcher, based on the Search keyword.
         Page<ResearcherProfile> all = null;
@@ -178,6 +179,17 @@ public class UsersServiceImplementation implements UsersService {
 
         return users.isActive();
 
+    }
+
+    @Override
+    public void changePassword(String email, String password) {
+        Users users = repo.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.USER_NOT_FOUND));
+
+        String encodedPassword = encoder.encode(password);
+
+        users.setPassword(encodedPassword);
+        repo.save(users);
     }
 
 

@@ -1,6 +1,4 @@
 package com.practice.researchopsproject.entity;
-
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor @AllArgsConstructor
@@ -43,6 +42,8 @@ public class Case {
 
     private String copyrightRegistrationNumber;
 
+    @CreatedDate
+    private LocalDate createdOn;
 
     private LocalDate copyrightRegistration;
 
@@ -60,6 +61,17 @@ public class Case {
     private CaseManagerProfile creator;
 
     @DBRef
-    private List<ResearcherProfile> researchers;
+    private Set<ResearcherProfile> researchers;
+
+
+    private DefendantDetails defendantDetails;
+
+    private AdditionalCaseInformation additionalCaseInformation;
+
+    private LitigationInformation litigationInformation;
+
+    private BillingInfo billingInfo;
+
+    private boolean isValid = false;
 
 }

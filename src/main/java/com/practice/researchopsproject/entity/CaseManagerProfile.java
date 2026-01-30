@@ -22,7 +22,7 @@ public class CaseManagerProfile {
     @DBRef(lazy = false)
     private Users user;
 
-    // keeping this list, as if we go using fetching the whole Case table, and filter them based on creator id
+    // keeping this list, as if we go using fetching the whole Case.java table, and filter them based on creator id
     // may take longer time based, on data size
     private List<String> assignCaseId;
 

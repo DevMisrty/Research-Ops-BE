@@ -1,7 +1,9 @@
 package com.practice.researchopsproject.services.Implementation;
 
 import com.practice.researchopsproject.dto.CaseDto;
+import com.practice.researchopsproject.dto.request.EditResearcherDto;
 import com.practice.researchopsproject.dto.request.RegisterResearcherRequestDto;
+import com.practice.researchopsproject.dto.response.CaseResponseDto;
 import com.practice.researchopsproject.dto.response.ResearcherResponseDto;
 import com.practice.researchopsproject.entity.*;
 import com.practice.researchopsproject.exception.customException.TokenExpireException;
@@ -11,11 +13,14 @@ import com.practice.researchopsproject.repository.UsersRepository;
 import com.practice.researchopsproject.services.InvitationService;
 import com.practice.researchopsproject.services.ResearcherService;
 import com.practice.researchopsproject.services.UsersService;
+import com.practice.researchopsproject.utilities.JwtUtilities;
 import com.practice.researchopsproject.utilities.Mappers;
 import com.practice.researchopsproject.utilities.Messages;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +46,7 @@ public class ResearcherServiceImplementation implements ResearcherService {
     private final ResearcherProfileRepository researcherProfileRepository;
     private final CaseRepository caseRepository;
     private final ModelMapper mapper;
+    private final JwtUtilities jwtUtilities;
 
 
     @Override
@@ -68,7 +74,8 @@ public class ResearcherServiceImplementation implements ResearcherService {
                 .build();
 
         ResearcherProfile profile = ResearcherProfile.builder()
-                .experience(invitation.getExperience()).assignCaseIds(new ArrayList<>())
+                .experience(invitation.getExperience())
+                .assignCaseIds(new ArrayList<>())
                 .build();
 
         log.info("Before saving the Researcher data");
@@ -86,7 +93,7 @@ public class ResearcherServiceImplementation implements ResearcherService {
     }
 
     @Override
-    public Page<CaseDto> getListOfAssignedCases(int page, int limit, String sortBy, String dir, String searchBy, String email) {
+    public Page<CaseResponseDto> getListOfAssignedCases(int page, int limit, String sortBy, String dir, String searchBy, String email) {
         // 1. get Users from email,
         Users users = usersRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.USER_NOT_FOUND));
@@ -97,25 +104,29 @@ public class ResearcherServiceImplementation implements ResearcherService {
 
         // 3. create Pageable object
         Sort sort = null;
-        if (dir == "ASC") {
+        if (dir.equals("ASC")) {
             sort = Sort.by(sortBy).ascending();
         } else {
             sort = Sort.by(sortBy).descending();
         }
-        PageRequest pageRequest = PageRequest.of(page, limit, sort);
+        PageRequest pageRequest = PageRequest.of(page-1, limit, sort);
 
         // 4. get list of cases, where ResearcherProfile is present
         Page<Case> all = null;
 
         if (searchBy == null || searchBy.isEmpty()) {
-            all = caseRepository.findAllByResearchers(profile, pageRequest);
+            all = caseRepository
+                    .findAllByResearchersAndIsValidTrue(profile, pageRequest);
         } else {
-            all = caseRepository.findAllByResearchersAndCaseNameContainingIgnoreCaseOrResearchersAndClientNameContainsIgnoreCaseOrResearchersOrPracticeAreaContaining(
-                    profile, searchBy, profile, searchBy, profile, searchBy, pageRequest);
+            all = caseRepository
+                    .searchByResearcherAndKeyword(
+                    new ObjectId(profile.getId()), searchBy,pageRequest
+            );
         }
 
-        // 5.  convert the Page<Case> to Page<CaseDto>
-        Page<CaseDto> response = all.map(Mappers::mapCaseToCaseDto);
+
+        // 5.  convert the Page<Case.java> to Page<CaseDto>
+        Page<CaseResponseDto> response = all.map(Mappers::mapCaseToCaseResponseDto);
         return response;
     }
 
@@ -124,6 +135,61 @@ public class ResearcherServiceImplementation implements ResearcherService {
         ResearcherProfile profile = researcherProfileRepository.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.RESEARCHER_NOT_FOUND));
 
+        return Mappers.mapResearcherToResearcherResponseDto(profile);
+    }
+
+    @Override
+    public void editResearcher(EditResearcherDto requestDto, String id) {
+        // 1. Get the researcher based on the id,
+        ResearcherProfile profile = researcherProfileRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.RESEARCHER_NOT_FOUND));
+
+        // 2. get the User based on the researcher profile fetched,
+        Users users = usersRepository.findByEmail(profile.getUser().getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.RESEARCHER_NOT_FOUND));
+
+        // 3. edit the user, and save it,
+        users.setName(requestDto.getName());
+        users.setAddress(requestDto.getAddress());
+        users.setState(requestDto.getState());
+        users.setCity(requestDto.getCity());
+        users.setZip(Long.valueOf(requestDto.getZip()));
+        users.setActive(requestDto.isActive());
+
+        Users savedUsers = usersRepository.save(users);
+
+        // 4. edit the researcher, and set the saved user to researcher, and save it.
+        profile.setUser(savedUsers);
+        profile.setExperience(Integer.valueOf(requestDto.getExperience()));
+
+        ResearcherProfile savedProfile = researcherProfileRepository.save(profile);
+    }
+
+    @Override
+    public void editMyProfile(EditResearcherDto researcherDto, HttpServletRequest request) throws BadRequestException {
+        String token = request.getHeader("Authorization").substring(7);
+        String email = jwtUtilities.getEmailFromToken(token);
+
+        Users users = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.RESEARCHER_NOT_FOUND));
+
+        ResearcherProfile profile = researcherProfileRepository.findByUser(users)
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.RESEARCHER_NOT_FOUND));
+
+        editResearcher(researcherDto, profile.getId());
+    }
+
+    @Override
+    public ResearcherResponseDto getResearcherByEmail(String email) {
+        // 1. get the user based on email.
+        Users users = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.USER_NOT_FOUND));
+
+        // 2. get the researcher based on user
+        ResearcherProfile profile = researcherProfileRepository.findByUser(users)
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.RESEARCHER_NOT_FOUND));
+
+        // 3. return the response
         return Mappers.mapResearcherToResearcherResponseDto(profile);
     }
 }

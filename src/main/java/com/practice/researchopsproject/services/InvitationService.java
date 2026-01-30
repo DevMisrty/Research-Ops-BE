@@ -21,7 +21,9 @@ public interface InvitationService {
 
     Invitation changeStatus(Invitation invitation, InvitationStatus invitationStatus);
 
-    UUID createAndSaveInvitationWithProgileImage(CreateUserRequestDto requestDto, MultipartFile file) throws IOException;
+    UUID createAndSaveInvitationWithProgileImage
+            (CreateUserRequestDto requestDto, MultipartFile file) throws IOException;
 
-    UUID createAndSaveInvitationForResWithFile(@Valid CreateResearcherRequestDto requestDto, MultipartFile file) throws IOException;
+    UUID createAndSaveInvitationForResWithFile
+            (@Valid CreateResearcherRequestDto requestDto, MultipartFile file) throws IOException;
 }

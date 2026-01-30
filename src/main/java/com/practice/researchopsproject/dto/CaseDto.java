@@ -1,5 +1,9 @@
 package com.practice.researchopsproject.dto;
 
+import com.practice.researchopsproject.entity.AdditionalCaseInformation;
+import com.practice.researchopsproject.entity.BillingInfo;
+import com.practice.researchopsproject.entity.DefendantDetails;
+import com.practice.researchopsproject.entity.LitigationInformation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,6 +33,8 @@ public class CaseDto {
     private String titleOfWork;
     private String descriptionOfWork;
 
+    private LocalDate createdOn;
+
     private boolean hasRegisteredDocument;
 
     private String copyrightRegistrationNumber;
@@ -44,5 +50,8 @@ public class CaseDto {
 
     private List<String> researchers;
 
-
+    private AdditionalCaseInformation additionalCaseInformation;
+    private DefendantDetails defendantDetails;
+    private LitigationInformation litigationInformation;
+    private BillingInfo billingInfo;
 }

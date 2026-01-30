@@ -1,10 +1,13 @@
 package com.practice.researchopsproject.controller;
 
+import com.practice.researchopsproject.dto.EditCaseManagerDto;
 import com.practice.researchopsproject.dto.InvitationDto;
 import com.practice.researchopsproject.dto.CaseDto;
 import com.practice.researchopsproject.dto.request.RegisterCaseManagerRequestDto;
+import com.practice.researchopsproject.dto.response.CaseResponseDto;
 import com.practice.researchopsproject.dto.response.ResearcherResponseDto;
 import com.practice.researchopsproject.entity.Case;
+import com.practice.researchopsproject.entity.CaseManagerProfile;
 import com.practice.researchopsproject.entity.Invitation;
 import com.practice.researchopsproject.exception.customException.ResourceNotFoundException;
 import com.practice.researchopsproject.exception.customException.TokenExpireException;
@@ -24,6 +27,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -44,16 +48,31 @@ public class CaseManagerController {
             @PathVariable String token,
             @RequestBody RegisterCaseManagerRequestDto requestDto) throws BadRequestException, TokenExpireException {
 
+        if(!requestDto.getPassword().equals(requestDto.getConfirmPassword())){
+            throw new BadCredentialsException(Messages.PASSWORD_DOESNT_MATCH);
+        }
+
         service.createCaseManager(token, requestDto);
 
         log.info("CaseManager profile has been created, Invitation token as {}.", token);
         return ApiResponse.getResponse(HttpStatus.CREATED, Messages.CASEMANAGER_CREATED, null);
     }
 
+
+    @PutMapping("/edit")
+    public ResponseEntity<?> editMyProfile( 
+            @RequestBody EditCaseManagerDto requestDto,
+            HttpServletRequest request
+    ) throws BadRequestException {
+        log.info("Edit My Profile for Case.java Manager is Called. ");
+        service.editMyProfile(requestDto, request);
+
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.CaseMANAGER_UPDATED, Messages.CaseMANAGER_UPDATED);
+    }
+
     // accepts the email for each Researcher assigned in the case. as a List.
     @PostMapping("/create/case")
     public ResponseEntity<?> createCase(
-            @RequestBody CaseDto requestDto,
             HttpServletRequest request){
 
         String token = request.getHeader("Authorization");
@@ -61,10 +80,11 @@ public class CaseManagerController {
         String email = jwtUtilities.getEmailFromToken(token);
         log.info("Email from Token found is, {}", email);
 
-        Case response = service.createCase(requestDto, email);
+        String caseId = service.createEmptyCase(email);
+//        Case response = service.createCase(requestDto, email);
 
-        log.info("New Case Has been created by CaseManager with email, {}", email);
-        return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_CREATED, Mappers.mapCaseToCaseDto(response));
+        log.info("New Case.java Has been created by CaseManager with email, {}", email);
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_CREATED, caseId );
     }
 
 
@@ -74,7 +94,7 @@ public class CaseManagerController {
             @RequestParam(required = false, defaultValue = "10") int limit,
             @RequestParam(required = false, defaultValue = "name") String searchBy
     ){
-        if(page< 0)page =0;
+        if(page< 0)page =0; 
         if(limit<= 0)limit =10;
 
         Page<ResearcherResponseDto> researchers = service.getResearchers(page, limit);
@@ -83,6 +103,34 @@ public class CaseManagerController {
         return ApiResponse.getResponse(HttpStatus.OK, Messages.LIST_OF_RESEARCHER_FETCHED, researchers);
     }
 
+    @GetMapping("/")
+    public ResponseEntity<?> getCasMangerProfileByToken(
+            HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        token = token.substring(7);
+        String email = jwtUtilities.getEmailFromToken(token);
+
+        CaseManagerProfile caseManagerProfile = service.getCasMangerProfileByEmail(email);
+
+        log.info("Case.java Manager profile has been fetched successfully, with email {}", email);
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.CASEMANAGER_PROFILE_FETCHED,
+                Mappers.mapCaseManagerToCaseManagerResponseDto(caseManagerProfile)
+                );
+    }
+
+    @GetMapping("/edit")
+    public ResponseEntity<?> editResearcherProfile(
+            @RequestBody EditCaseManagerDto requestDto,
+            HttpServletRequest request
+    ){
+        String token = request.getHeader("Authorization").substring(7);
+        String email = jwtUtilities.getEmailFromToken(token);
+
+        service.editCaseManagerProfile(requestDto, email);
+
+        log.info("Researcher profile has been updated successfully, with email {}", email);
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.RESEARCHER_UPDATED, null);
+    }
 
     @PutMapping("/edit/case/{id}")
     public ResponseEntity<?> editCase(
@@ -98,7 +146,7 @@ public class CaseManagerController {
 
         Case aCase = service.editCase(caseDto, email, id);
 
-        log.info("Case with CaseId {}, has been updated successfully, with the CaseManager email as {}", id, email);
+        log.info("Case.java with CaseId {}, has been updated successfully, with the CaseManager email as {}", id, email);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_UPDATED, Mappers.mapCaseToCaseDto(aCase) );
 
     }
@@ -107,13 +155,13 @@ public class CaseManagerController {
     public ResponseEntity<?> getCaseList(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int limit,
-            @RequestParam(required = false, defaultValue = "caseName") String sortBy,
-            @RequestParam(required = false, defaultValue = "ASC") String dir,
+            @RequestParam(required = false, defaultValue = "createdOn") String sortBy,
+            @RequestParam(required = false, defaultValue = "DSC") String dir,
             @RequestParam(required = false) String searchBy,
             HttpServletRequest request
     ){
 
-        if(page< 0)page =0;
+        if(page<= 0)page =1;
         if(limit <= 0) limit = 10;
 
         String token = request.getHeader("Authorization");
@@ -121,7 +169,7 @@ public class CaseManagerController {
 
         String email = jwtUtilities.getEmailFromToken(token);
 
-        Page<CaseDto> response
+        Page<CaseResponseDto> response
                 = caseService.getListOfCasesByCreator(page, limit, sortBy, dir, searchBy, email);
 
         log.info("List of Cases Created By CaseManager {}, has been fetched with page {}, limit {}, sortBy {}, dir {}, searchBy {}.", email, page, limit, sortBy, dir, searchBy);

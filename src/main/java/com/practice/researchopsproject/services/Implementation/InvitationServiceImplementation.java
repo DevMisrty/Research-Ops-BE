@@ -77,7 +77,10 @@ public class InvitationServiceImplementation implements InvitationService {
         Invitation savedData = repo.save(invite);
         log.info("Saved Data {}", savedData);
 
-        mail.sendMail(savedData.getEmail(), "Create Credentials", savedData.getId().toString() );
+
+        String url = "http://localhost:5173/cm/register/"+savedData.getId().toString();
+        log.info("url {},", url);
+        mail.sendMail(savedData.getEmail(), "Create Credentials", url);
 
         return savedData.getId();
 
@@ -104,7 +107,10 @@ public class InvitationServiceImplementation implements InvitationService {
                 .build();
 
         Invitation savedData = repo.save(invite);
-        mail.sendMail(savedData.getEmail(), "Create Credentials", savedData.getId().toString() );
+
+        String url = "http://localhost:5173/rs/register/"+savedData.getId().toString();
+        log.info("url {},", url);
+        mail.sendMail(savedData.getEmail(), "Create Credentials", url);
 
         return savedData.getId();
     }
@@ -127,6 +133,7 @@ public class InvitationServiceImplementation implements InvitationService {
 
         Invitation savedData = repo.save(invite);
         mail.sendMail(savedData.getEmail(), "Create Credentials", savedData.getId().toString() );
+        log.info("Mail send to User {}, with url {}",savedData.getId().toString() );
 
         return savedData.getId();
     }

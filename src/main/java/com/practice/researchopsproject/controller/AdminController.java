@@ -1,17 +1,17 @@
 package com.practice.researchopsproject.controller;
 
 import com.practice.researchopsproject.dto.CaseDto;
+import com.practice.researchopsproject.dto.EditCaseManagerDto;
 import com.practice.researchopsproject.dto.PaginationResponseDto;
 import com.practice.researchopsproject.dto.request.CreateResearcherRequestDto;
 import com.practice.researchopsproject.dto.request.CreateUserRequestDto;
+import com.practice.researchopsproject.dto.request.EditResearcherDto;
 import com.practice.researchopsproject.dto.response.CaseManagerResponseDto;
+import com.practice.researchopsproject.dto.response.CaseResponseDto;
 import com.practice.researchopsproject.dto.response.ResearcherResponseDto;
 import com.practice.researchopsproject.dto.response.UserResponseDto;
 import com.practice.researchopsproject.exception.customException.CaseNotFoundException;
-import com.practice.researchopsproject.services.CaseManagerService;
-import com.practice.researchopsproject.services.CaseService;
-import com.practice.researchopsproject.services.InvitationService;
-import com.practice.researchopsproject.services.UsersService;
+import com.practice.researchopsproject.services.*;
 import com.practice.researchopsproject.utilities.ApiResponse;
 import com.practice.researchopsproject.utilities.Messages;
 import jakarta.validation.Valid;
@@ -38,6 +38,7 @@ public class AdminController {
     private final InvitationService invitationService;
     private final CaseManagerService caseManagerService;
     private final CaseService caseService;
+    private final ResearcherService researcherService;
 
 
     @GetMapping("/casemanager")
@@ -49,18 +50,18 @@ public class AdminController {
             @RequestParam(required = false) String searchBy
     ){
 
-        if(page < 0 )page =0;
+        if(page <= 0 )page =1;
         if(limit <= 0)limit =10;
 
         Page<CaseManagerResponseDto> response =
                 usersService.getListOfCaseManager(page, limit, sortBy, direction, searchBy);
 
-        log.info("List of Case Manager fetched, from /api/admin/casemanager, with page {}, limit {}, sortBy {}, direction,{}",
+        log.info("List of Case.java Manager fetched, from /api/admin/casemanager, with page {}, limit {}, sortBy {}, direction,{}",
                 page, limit, sortBy, direction);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.LIST_OF_CASEMANAGER_FETCHED, response);
     }
 
-    //access by admin, as well as Case Manager.
+    //access by admin, as well as Case.java Manager.
     @GetMapping("/researcher")
     public ResponseEntity<?> getListOfResearchers(
             @RequestParam(required = false, defaultValue = "0") Integer page,
@@ -68,7 +69,7 @@ public class AdminController {
             @RequestParam(required = false, defaultValue = "name") String sortBy ,
             @RequestParam(required = false, defaultValue = "ASC") String direction,
             @RequestParam(required = false) String searchBy ){
-        if(page < 0)page =0;
+        if(page <= 0)page = 1;
         if(limit <= 0)limit =0;
 
         Page<ResearcherResponseDto> response =
@@ -101,6 +102,28 @@ public class AdminController {
         return ApiResponse.getResponse(HttpStatus.OK, Messages.MAIL_SEND, token);
     }
 
+    @PutMapping("/edit/casemanager/{id}")
+    public ResponseEntity<?> editCaseManager(
+            @PathVariable String id,
+            @RequestBody EditCaseManagerDto requestDto
+    ){
+        log.info("Edit CaseManager profile for CaseManager id, {}", id);
+        CaseManagerResponseDto response = caseManagerService.editCaseManager(requestDto, id);
+
+        return ApiResponse.getResponse(HttpStatus.ACCEPTED, Messages.CaseMANAGER_UPDATED, Messages.CaseMANAGER_UPDATED);
+    }
+
+    @PutMapping("/edit/researcher/{id}")
+    public ResponseEntity<?> editResearcher(
+            @PathVariable String id,
+            @RequestBody EditResearcherDto requestDto
+    ){
+        log.info("Edit Researcher profile for Researcher id, {}", id);
+
+        researcherService.editResearcher(requestDto, id);
+        return ApiResponse.getResponse(HttpStatus.ACCEPTED, Messages.RESEARCHER_UPDATED, Messages.RESEARCHER_UPDATED );
+    }
+
     @PostMapping("/create/researcher")
     public ResponseEntity<?> createResearcher(
             @RequestPart CreateResearcherRequestDto requestDto,
@@ -115,37 +138,18 @@ public class AdminController {
     }
 
 
-    @PostMapping("/active/{id}")
-    public ResponseEntity<?> activateUserProfile(@PathVariable String id){
-
-        UserResponseDto response = usersService.activateUserProfile(id);
-
-        log.info("User profile has been updated as Active, for User id, {}", response.getId());
-        return ApiResponse.getResponse(HttpStatus.ACCEPTED, Messages.PROFILE_SET_ACTIVE, response);
-    }
-
-    @PostMapping("/deactivate/{id}")
-    public ResponseEntity<?> deactivateUserProfile(@PathVariable String id){
-
-        UserResponseDto response = usersService.deactivateUserProfile(id);
-
-        log.info("User profile has been updated as InActive, for UserId, {}",response.getId());
-        return ApiResponse.getResponse(HttpStatus.ACCEPTED, Messages.PROFILE_SET_NOACTIVE, response);
-    }
-
-
     @GetMapping("/cases")
     public ResponseEntity<?> getListOfCases(
             @RequestParam(required = false, defaultValue = "0") int page,
             @RequestParam(required = false, defaultValue = "10") int limit,
-            @RequestParam(required = false, defaultValue = "caseName") String sortBy,
-            @RequestParam(required = false, defaultValue = "ASC") String dir,
+            @RequestParam(required = false, defaultValue = "createdOn") String sortBy,
+            @RequestParam(required = false, defaultValue = "DSC") String dir,
             @RequestParam(required = false) String searchBy
     ){
-        if(page <0)page =0;
+        if(page <=0)page =1;
         if(limit <= 0) limit=10;
 
-        Page<CaseDto> response = caseService.getListOfCases(page, limit, sortBy, dir, searchBy);
+        Page<CaseResponseDto> response = caseService.getListOfCases(page, limit, sortBy, dir, searchBy);
 
         log.info("List of Cases has been fetched, with page {}, limit {}, sortBy {}, dir {}, searchBy {}.", page, limit, sortBy, dir, searchBy);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.CASES_FETCHED_SUCCESSFULLY, response);
@@ -156,7 +160,7 @@ public class AdminController {
 
         CaseDto caseDto = caseManagerService.editCaseByAdmin(requestDto, id);
 
-        log.info("Case Details has been updated, Case with case Id {}", caseDto.getCaseId());
+        log.info("Case.java Details has been updated, Case.java with case Id {}", caseDto.getCaseId());
         return ApiResponse.getResponse(HttpStatus.OK , Messages.CASE_UPDATED, caseDto );
     }
 

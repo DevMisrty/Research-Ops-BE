@@ -25,7 +25,6 @@ public class ImageUploadUtilities {
     private final UsersRepository usersRepository;
 
     public String createFileName(String email){
-
         String fileName = email;
 
         fileName = fileName.replace("@","");
@@ -58,17 +57,5 @@ public class ImageUploadUtilities {
         Files.copy(file.getInputStream(), path);
 
         return fileName;
-    }
-
-    public Resource getFileFromFileName(String fileName) throws MalformedURLException, FileNotFoundException {
-        final Path storageLocation = Paths.get(directory);
-
-        Path path = storageLocation.resolve(fileName);
-        Resource resource = new UrlResource(path.toUri());
-
-        if (resource.exists() && resource.isReadable())
-            return resource;
-
-        throw new FileNotFoundException("File not found: " + fileName);
     }
 }

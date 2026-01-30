@@ -38,7 +38,7 @@ public class JwtUtilities {
                 .claim("role", dto.getRole().toString())
                 .claim("fileName", imageUrl)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 *  60 * 24 ))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 )) // * 60  * 60 * 24
                 .signWith(getKey())
                 .compact();
     }

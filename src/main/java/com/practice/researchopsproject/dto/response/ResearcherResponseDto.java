@@ -16,5 +16,9 @@ public class ResearcherResponseDto {
     private int assignCases;
     private int experience;
     private boolean isActive;
+    private String address;
+    private String city;
+    private String zip;
+    private String file;
 
 }

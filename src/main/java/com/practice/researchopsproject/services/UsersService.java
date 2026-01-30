@@ -20,13 +20,17 @@ public interface UsersService {
 
     UserDto getUserByEmail(String email);
 
-    Page<CaseManagerResponseDto> getListOfCaseManager(Integer page, Integer limit, String sort, String direction,String searchBy);
+    Page<CaseManagerResponseDto>
+    getListOfCaseManager(Integer page, Integer limit, String sort, String direction,String searchBy);
 
-    Page<ResearcherResponseDto> getListofResearcher(Integer page, Integer limit, String sortBy, String direction, String searchBy);
+    Page<ResearcherResponseDto> getListofResearcher
+            (Integer page, Integer limit, String sortBy, String direction, String searchBy);
 
     UserResponseDto activateUserProfile(String id);
 
     UserResponseDto deactivateUserProfile(String id);
 
     boolean checkProfileIsActive(String email);
+
+    void changePassword(String email, String password);
 }

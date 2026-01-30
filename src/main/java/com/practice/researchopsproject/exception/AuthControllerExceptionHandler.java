@@ -1,6 +1,7 @@
 package com.practice.researchopsproject.exception;
 
 import com.practice.researchopsproject.exception.customException.CaseNotFoundException;
+import com.practice.researchopsproject.exception.customException.InvaliTokenException;
 import com.practice.researchopsproject.exception.customException.ResourceNotFoundException;
 import com.practice.researchopsproject.exception.customException.TokenExpireException;
 import com.practice.researchopsproject.utilities.ExceptionResponse;
@@ -49,7 +50,7 @@ public class AuthControllerExceptionHandler {
         return ExceptionResponse.exceptionResponse(
                 request.getRequestURI(),
                 e.getMessage(),
-                HttpStatus.REQUEST_TIMEOUT
+                HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
 
@@ -104,6 +105,15 @@ public class AuthControllerExceptionHandler {
                 request.getRequestURI(),
                 e.getMessage(),
                 HttpStatus.NOT_FOUND
+        );
+    }
+
+    @ExceptionHandler(InvaliTokenException.class)
+    public ResponseEntity<?> handleInvalidException(HttpServletRequest request, InvaliTokenException e){
+        return ExceptionResponse.exceptionResponse(
+                request.getRequestURI(),
+                e.getMessage(),
+                HttpStatus.UNAUTHORIZED
         );
     }
 }

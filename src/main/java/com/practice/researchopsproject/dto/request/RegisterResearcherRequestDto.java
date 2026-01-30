@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 public class RegisterResearcherRequestDto {
 
     private String password;
+    private String confirmPassword;
 
 }

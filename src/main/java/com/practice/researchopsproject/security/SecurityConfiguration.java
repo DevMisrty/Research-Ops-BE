@@ -23,7 +23,7 @@ public class SecurityConfiguration {
     private final JwtFilter filter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http){
+     public SecurityFilterChain securityFilterChain(HttpSecurity http){
         return http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -37,6 +37,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/swagger-ui.html").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
 
+                        .requestMatchers("/api/general/token/**").permitAll()
                         .requestMatchers("/api/general/**").authenticated()
 
                         .requestMatchers("/api/cm/**").hasRole(Role.CASE_MANAGER.toString())

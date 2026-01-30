@@ -3,7 +3,10 @@ package com.practice.researchopsproject.controller;
 import com.practice.researchopsproject.dto.CaseDto;
 import com.practice.researchopsproject.dto.InvitationDto;
 import com.practice.researchopsproject.dto.request.CreateResearcherRequestDto;
+import com.practice.researchopsproject.dto.request.EditResearcherDto;
 import com.practice.researchopsproject.dto.request.RegisterResearcherRequestDto;
+import com.practice.researchopsproject.dto.response.CaseResponseDto;
+import com.practice.researchopsproject.dto.response.ResearcherResponseDto;
 import com.practice.researchopsproject.entity.Invitation;
 import com.practice.researchopsproject.exception.customException.TokenExpireException;
 import com.practice.researchopsproject.services.InvitationService;
@@ -37,10 +40,38 @@ public class ResearcherController {
             @PathVariable String token,
             @RequestBody RegisterResearcherRequestDto requestDto) throws BadRequestException, TokenExpireException {
 
+        if(!requestDto.getPassword().equals(requestDto.getConfirmPassword())){
+            throw new BadRequestException(Messages.PASSWORD_DOESNT_MATCH);
+        }
+
         service.createResearchProfile(token, requestDto);
 
         log.info("Researcher profile has been created, Invitation token as {}.", token);
         return ApiResponse.getResponse(HttpStatus.CREATED, Messages.RESEARCHER_CREATED, "researcher profile created");
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<?> getResearcherBasedOnToken(HttpServletRequest request){
+        String token = request.getHeader("Authorization");
+        token = token.substring(7);
+
+        String email = jwtUtilities.getEmailFromToken(token);
+
+        ResearcherResponseDto profile = service.getResearcherByEmail(email);
+
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.RESEARCHERPROFILE_FETCHED, profile);
+    }
+
+    @PutMapping("/edit")
+    public ResponseEntity<?> editReseacrher(
+            @RequestBody EditResearcherDto researcherDto,
+            HttpServletRequest request
+    ) throws BadRequestException {
+        log.info("Edit My profile for Reasearcher." );
+
+        service.editMyProfile(researcherDto, request);
+
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.RESEARCHER_UPDATED, Messages.RESEARCHER_UPDATED);
     }
 
     @GetMapping("/cases")
@@ -52,7 +83,7 @@ public class ResearcherController {
             @RequestParam(required = false) String searchBy,
             HttpServletRequest request
     ){
-        if(page< 0)page =0;
+        if(page<= 0)page =1;
         if(limit <= 0) limit =10;
 
         String token = request.getHeader("Authorization");
@@ -60,12 +91,11 @@ public class ResearcherController {
 
         String email = jwtUtilities.getEmailFromToken(token);
 
-        Page<CaseDto> response =
+        Page<CaseResponseDto> response =
                 service.getListOfAssignedCases(page, limit, sortBy, dir, searchBy, email);
 
         log.info("List of Cases Assigned to Researcher with email {}, has been fetched with, page {}, limit {}, sortBy {}, dir {}, and searchBy {}. ", email, page, limit, sortBy, dir, searchBy);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.CASES_FETCHED_SUCCESSFULLY, response);
     }
-
 
 }

@@ -13,20 +13,35 @@ import org.springframework.data.mongodb.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface CaseRepository extends MongoRepository<Case, String> {
     Optional<Case> findByCaseId(String caseId);
 
-    Page<Case> findAllByCreator(CaseManagerProfile caseManager, PageRequest pageRequest);
+    Page<Case> findByIsValidTrueAndCaseNameContainingOrIsValidTrueAndClientNameContainingOrIsValidTrueAndPracticeAreaContaining(String searchBy, String searchBy1, String searchBy2, PageRequest pageRequest);
 
-    Page<Case> findAllByResearchers(ResearcherProfile profile, PageRequest pageRequest);
+    Page<Case> findAllByIsValidTrue(PageRequest pageRequest);
 
-    Page<Case> findAllByCaseNameContainingOrClientNameContainingOrPracticeAreaContaining(String searchBy, String searchBy1, String searchBy2, PageRequest pageRequest);
+    Page<Case> findAllByCreatorAndIsValidTrue(CaseManagerProfile caseManager, PageRequest pageRequest);
 
-    Page<Case> findAllByCreatorAndCaseNameContainingIgnoreCaseOrCreatorAndClientNameContainingIgnoreCaseOrCreatorAndPracticeArea(CaseManagerProfile caseManagerProfile, String searchBy, CaseManagerProfile caseManagerProfile1, String searchBy1, CaseManagerProfile caseManagerProfile2, String searchBy2, PageRequest pageRequest);
+    Page<Case> findAllByCreatorAndCaseNameContainingIgnoreCaseAndIsValidTrueOrCreatorAndClientNameContainingIgnoreCaseAndIsValidTrueOrCreatorAndPracticeAreaAndIsValidTrue(CaseManagerProfile caseManager, String searchBy, CaseManagerProfile caseManager1, String searchBy1, CaseManagerProfile caseManager2, String searchBy2, PageRequest pageRequest);
 
+    Page<Case> findAllByResearchersAndIsValidTrue(ResearcherProfile profile, PageRequest pageRequest);
 
-    Page<Case> findAllByResearchersAndCaseNameContainingIgnoreCaseOrResearchersAndClientNameContainsIgnoreCaseAndResearchersOrPracticeAreaContaining(ResearcherProfile profile, String searchBy, ResearcherProfile profile1, String searchBy1, ResearcherProfile profile2, String searchBy2, PageRequest pageRequest);
-
-    Page<Case> findAllByResearchersAndCaseNameContainingIgnoreCaseOrResearchersAndClientNameContainsIgnoreCaseOrResearchersOrPracticeAreaContaining(ResearcherProfile profile, String searchBy, ResearcherProfile profile1, String searchBy1, ResearcherProfile profile2, String searchBy2, PageRequest pageRequest);
+    @Query("""
+        {
+          'isValid': true,
+          'researchers.$id': ?0,
+          $or: [
+            { 'caseName': { $regex: ?1, $options: 'i' } },
+            { 'clientName': { $regex: ?1, $options: 'i' } },
+            { 'practiceArea': ?1 }
+          ]
+        }
+    """)
+    Page<Case> searchByResearcherAndKeyword(
+            ObjectId researcherId,
+            String searchBy,
+            Pageable pageable
+    );
 }

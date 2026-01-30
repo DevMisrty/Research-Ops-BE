@@ -11,5 +11,6 @@ import lombok.NoArgsConstructor;
 public class RegisterCaseManagerRequestDto {
 
     private String password;
+    private String confirmPassword;
 
 }

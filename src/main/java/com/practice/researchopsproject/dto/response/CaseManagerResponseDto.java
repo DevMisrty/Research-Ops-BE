@@ -19,5 +19,9 @@ public class CaseManagerResponseDto {
     private Boolean isActive;
     private Integer assignCases;
     private LocalDateTime lastLogin;
+    private String address;
+    private String city;
+    private String zip;
+    private String file;
 
 }
