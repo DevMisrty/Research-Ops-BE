@@ -4,6 +4,7 @@ import com.practice.researchopsproject.dto.CaseDto;
 import com.practice.researchopsproject.dto.EditCaseManagerDto;
 import com.practice.researchopsproject.dto.request.RegisterCaseManagerRequestDto;
 import com.practice.researchopsproject.dto.response.CaseManagerResponseDto;
+import com.practice.researchopsproject.dto.response.CreateCaseResponseDto;
 import com.practice.researchopsproject.dto.response.ResearcherResponseDto;
 import com.practice.researchopsproject.entity.Case;
 import com.practice.researchopsproject.entity.CaseManagerProfile;
@@ -24,7 +25,7 @@ public interface CaseManagerService {
     Case createCase(@Valid CaseDto requestDto, String email);
 
     Case editCase(CaseDto caseDto, String email, String id)
-            throws BadRequestException, ResourceNotFoundException;
+            throws BadRequestException, ResourceNotFoundException, CaseNotFoundException;
 
     CaseManagerResponseDto getCaseManagerById(String id);
 
@@ -35,7 +36,7 @@ public interface CaseManagerService {
     void editMyProfile
             (EditCaseManagerDto requestDto, HttpServletRequest request) throws BadRequestException;
 
-    String createEmptyCase(String email);
+    CreateCaseResponseDto createEmptyCase(String email);
 
     CaseManagerProfile getCasMangerProfileByEmail(String email);
 

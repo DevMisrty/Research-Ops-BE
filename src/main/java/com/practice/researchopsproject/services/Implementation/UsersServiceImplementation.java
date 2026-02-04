@@ -1,31 +1,39 @@
 package com.practice.researchopsproject.services.Implementation;
 
-import com.practice.researchopsproject.dto.PaginationResponseDto;
+import com.practice.researchopsproject.dto.PasswordResetTokenDto;
 import com.practice.researchopsproject.dto.UserDto;
+import com.practice.researchopsproject.dto.request.ResetPasswordRequestDto;
 import com.practice.researchopsproject.dto.request.UserRequestDto;
 import com.practice.researchopsproject.dto.response.CaseManagerResponseDto;
 import com.practice.researchopsproject.dto.response.ResearcherResponseDto;
 import com.practice.researchopsproject.dto.response.UserResponseDto;
-import com.practice.researchopsproject.entity.CaseManagerProfile;
-import com.practice.researchopsproject.entity.ResearcherProfile;
-import com.practice.researchopsproject.entity.Role;
-import com.practice.researchopsproject.entity.Users;
+import com.practice.researchopsproject.entity.*;
+import com.practice.researchopsproject.exception.customException.TokenExpireException;
+import com.practice.researchopsproject.exception.customException.TokenNotFoundException;
+import com.practice.researchopsproject.exception.customException.UserNameAlreadyTaken;
 import com.practice.researchopsproject.repository.CaseManagerProfileRepository;
+import com.practice.researchopsproject.repository.PasswordResetTokenRepository;
 import com.practice.researchopsproject.repository.ResearcherProfileRepository;
 import com.practice.researchopsproject.repository.UsersRepository;
 import com.practice.researchopsproject.services.UsersService;
+import com.practice.researchopsproject.utilities.MailUtilities;
 import com.practice.researchopsproject.utilities.Mappers;
 import com.practice.researchopsproject.utilities.Messages;
 import com.sun.jdi.request.InvalidRequestStateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Component
@@ -36,14 +44,23 @@ public class UsersServiceImplementation implements UsersService {
     private final UsersRepository repo;
     private final CaseManagerProfileRepository caseRepo;
     private final ResearcherProfileRepository resRepo;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final ModelMapper mapper;
     private final PasswordEncoder encoder;
+    private final MailUtilities mailUtilities;
+
+    @Value("${frontend.baseurl}")
+    private String BASEURL;
 
     //role must be admin
     @Override
-    public UserResponseDto saveUsers(UserRequestDto requestDto) {
+    public UserResponseDto saveUsers(UserRequestDto requestDto) throws UserNameAlreadyTaken {
 
         UserResponseDto response =null;
+
+        if(repo.existsByEmail(requestDto.getEmail())){
+            throw new UserNameAlreadyTaken(Messages.USER_ALREADY_EXIST);
+        }
 
         try{
             Users users = mapper.map(requestDto, Users.class);
@@ -138,40 +155,6 @@ public class UsersServiceImplementation implements UsersService {
     }
 
     @Override
-    public UserResponseDto activateUserProfile(String id) {
-
-        Users users = repo.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException(Messages.USER_NOT_FOUND));
-
-        if(users.getRole()==Role.ADMIN){
-            throw new InvalidRequestStateException(Messages.CANT_PERFROM_ON_ADMIN);
-        }
-        if(users.isActive())return mapper.map(users, UserResponseDto.class);
-
-        users.setActive(true);
-        Users savedusers = repo.save(users);
-        UserResponseDto response = mapper.map(users, UserResponseDto.class);
-        return response;
-
-    }
-
-    @Override
-    public UserResponseDto deactivateUserProfile(String id) {
-        Users users = repo.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException(Messages.USER_NOT_FOUND));
-
-        if(users.getRole()==Role.ADMIN){
-            throw new InvalidRequestStateException(Messages.CANT_PERFROM_ON_ADMIN);
-        }
-        if(!users.isActive())return mapper.map(users, UserResponseDto.class);
-
-        users.setActive(false);
-        Users savedUser = repo.save(users);
-        UserResponseDto response = mapper.map(savedUser, UserResponseDto.class);
-        return response;
-    }
-
-    @Override
     public boolean checkProfileIsActive(String email) {
 
         Users users = repo.findByEmail(email)
@@ -190,6 +173,59 @@ public class UsersServiceImplementation implements UsersService {
 
         users.setPassword(encodedPassword);
         repo.save(users);
+    }
+
+    @Override
+    public void forgotPasswordMail(String email) {
+        if (!repo.existsByEmail(email)) {
+            throw new UsernameNotFoundException(Messages.USER_NOT_FOUND);
+        }
+
+        PasswordResetToken token = PasswordResetToken.builder()
+                .token(UUID.randomUUID().toString())
+                .email(email)
+                .expiresAt(LocalDateTime.now().plusMinutes(60))
+                .isUsed(false)
+                .build();
+
+        passwordResetTokenRepository.save(token);
+        String url = BASEURL+"reset-password/"+token.getToken();
+
+        mailUtilities.sendMail(email,"Reset Password Link, expires in 60 mintues.", url);
+    }
+
+    @Override
+    public PasswordResetTokenDto fetchResetPasswordToken(String token) throws BadRequestException {
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token)
+                .orElseThrow(()-> new BadRequestException(Messages.INVALID_TOKEN));
+
+        return mapper.map(passwordResetToken, PasswordResetTokenDto.class);
+    }
+
+    @Override
+    public void setResetPassword(ResetPasswordRequestDto requestDto)
+            throws TokenNotFoundException, TokenExpireException, BadRequestException {
+        if(!requestDto.getPassword().equals(requestDto.getConfirmPassword())){
+            throw new BadRequestException(Messages.PASSWORD_NOT_MATCH);
+        }
+
+        PasswordResetToken token = passwordResetTokenRepository.findByToken(requestDto.getToken())
+                .orElseThrow(() -> new TokenNotFoundException(Messages.INVALID_TOKEN));
+
+        if(token.isUsed() || token.getExpiresAt().isBefore(LocalDateTime.now())){
+            throw new TokenExpireException(Messages.TOKEN_EXPIRE);
+        }
+
+        Users profile = repo.findByEmail(token.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.USER_NOT_FOUND));
+
+        profile.setPassword(encoder.encode(requestDto.getPassword()));
+        Users savedProfile = repo.save(profile);
+
+        token.setUsed(true);
+        passwordResetTokenRepository.save(token);
+
+        mailUtilities.sendMail(savedProfile.getEmail(), "Account Password has been chnaged.", savedProfile.getEmail());
     }
 
 

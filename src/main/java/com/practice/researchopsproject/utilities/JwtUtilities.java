@@ -5,6 +5,7 @@ import com.practice.researchopsproject.dto.response.UserResponseDto;
 import com.practice.researchopsproject.entity.Role;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -38,7 +39,7 @@ public class JwtUtilities {
                 .claim("role", dto.getRole().toString())
                 .claim("fileName", imageUrl)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 )) // * 60  * 60 * 24
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60  )) // * 60  * 60 * 24
                 .signWith(getKey())
                 .compact();
     }
@@ -79,6 +80,12 @@ public class JwtUtilities {
                 .parseSignedClaims(token)
                 .getPayload()
                 .get("role", String.class);
+    }
+
+    public String getEmailFromRequest(HttpServletRequest request){
+        String token  = request.getHeader("Authorization");
+        String email = getEmailFromToken(token);
+        return email;
     }
 
 

@@ -4,20 +4,30 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor @AllArgsConstructor
 @Builder
 @Document
-public class AvailCaseId {
+public class PasswordResetToken {
 
+    @Id
     private String id;
 
     @Indexed(unique = true)
-    private String caseId;
+    private String token;
+    private String email;
 
-    private String tempCaseId;
+    @CreatedDate
+    private LocalDateTime createdAt;
+
+    private LocalDateTime expiresAt;
+
+    private boolean isUsed;
 }

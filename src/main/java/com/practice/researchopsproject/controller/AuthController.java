@@ -1,9 +1,16 @@
 package com.practice.researchopsproject.controller;
 
+import com.practice.researchopsproject.dto.PasswordResetTokenDto;
 import com.practice.researchopsproject.dto.UserDto;
+import com.practice.researchopsproject.dto.request.ForgotPasswordEmail;
 import com.practice.researchopsproject.dto.request.LoginRequestDto;
+import com.practice.researchopsproject.dto.request.ResetPasswordRequestDto;
 import com.practice.researchopsproject.dto.request.UserRequestDto;
+import com.practice.researchopsproject.entity.PasswordResetToken;
 import com.practice.researchopsproject.exception.customException.InvaliTokenException;
+import com.practice.researchopsproject.exception.customException.TokenExpireException;
+import com.practice.researchopsproject.exception.customException.TokenNotFoundException;
+import com.practice.researchopsproject.exception.customException.UserNameAlreadyTaken;
 import com.practice.researchopsproject.services.UsersService;
 import com.practice.researchopsproject.utilities.ApiResponse;
 import com.practice.researchopsproject.utilities.JwtUtilities;
@@ -12,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +43,8 @@ public class AuthController {
     private final JwtUtilities utilities;
 
     @PostMapping("/admin/register")
-    private ResponseEntity<?> RegisterAdmin(@Valid @RequestBody UserRequestDto requestDto){
+    private ResponseEntity<?> RegisterAdmin(@Valid @RequestBody UserRequestDto requestDto)
+            throws UserNameAlreadyTaken {
 
         var response = usersService.saveUsers(requestDto);
         log.info("Registered the User with email, {}", requestDto.getEmail());
@@ -79,6 +88,27 @@ public class AuthController {
 
     }
 
+    @PostMapping("/forgotpassword")
+    private ResponseEntity<?> forgotPassword(@RequestBody ForgotPasswordEmail request){
+        usersService.forgotPasswordMail(request.getEmail());
+        log.info("Forgot password mail has been send.");
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.MAIL_SENT, Messages.MAIL_SENT);
+    }
+
+    @GetMapping("/resetpassword/{token}")
+    public ResponseEntity<?> getResetPasswordToken(@PathVariable String token) throws BadRequestException {
+        PasswordResetTokenDto response = usersService.fetchResetPasswordToken(token);
+        log.info("Reset Password Details has been send.");
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.INVITATION_TOKEN_FETCHED, response);
+    }
+
+    @PostMapping("/resetpassword")
+    public ResponseEntity<?> setPassword(@RequestBody ResetPasswordRequestDto requestDto)
+            throws TokenExpireException, BadRequestException, TokenNotFoundException {
+        usersService.setResetPassword(requestDto);
+        log.info("Password has been updated.");
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.PASSWORD_UPDATED, Messages.PASSWORD_UPDATED);
+    }
 
 
     private Map<String, String> getTokens(String email){

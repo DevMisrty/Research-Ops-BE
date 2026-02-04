@@ -4,6 +4,7 @@ import com.practice.researchopsproject.dto.CaseDto;
 import com.practice.researchopsproject.dto.EditCaseManagerDto;
 import com.practice.researchopsproject.dto.request.RegisterCaseManagerRequestDto;
 import com.practice.researchopsproject.dto.response.CaseManagerResponseDto;
+import com.practice.researchopsproject.dto.response.CreateCaseResponseDto;
 import com.practice.researchopsproject.dto.response.ResearcherResponseDto;
 import com.practice.researchopsproject.entity.*;
 import com.practice.researchopsproject.exception.customException.CaseNotFoundException;
@@ -44,6 +45,7 @@ public class CaseManagerServiceImplementation implements CaseManagerService {
     private final UsersRepository usersRepository;
     private final JwtUtilities jwtUtilities;
     private final AvailCaseIdRepository availCaseIdRepository;
+    private final TempCaseRepository tempCaseRepository;
 
 
     @Override
@@ -176,7 +178,7 @@ public class CaseManagerServiceImplementation implements CaseManagerService {
     }
 
     @Override
-    public String createEmptyCase(String email) {
+    public CreateCaseResponseDto createEmptyCase(String email) {
         // 1. get the Users based on email,
         Users users = usersRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.CASEMANAGER_NOT_FOUND));
@@ -186,28 +188,32 @@ public class CaseManagerServiceImplementation implements CaseManagerService {
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.CASEMANAGER_NOT_FOUND));
 
         // 3. set the caseId, and creator based on the CaseManager,
-        Optional<AvailCaseId> availCaseId = availCaseIdRepository.findFirstByOrderByCaseIdAsc();
         String id = "";
-        if(!availCaseId.isEmpty()){
-            id = availCaseId.get().getCaseId();
-            availCaseIdRepository.deleteAvailCaseIdByCaseId(id);
+        Optional<Case> validCase = caseRepository.
+                findFirstByIsValidFalseAndCreatedOnBeforeOrderByCaseIdAsc(LocalDateTime.now().minusMinutes(5));
+        if(!validCase.isEmpty()){
+
+            Case aCase = validCase.get();
+            aCase.setCreatedOn(LocalDateTime.now());
+            aCase.setCreator(profile);
+            Case savedCase = caseRepository.save(aCase);
+
+            return new CreateCaseResponseDto(savedCase.getCaseId(), savedCase.getCreatedOn());
         }else{
             id = createId();
         }
 
-        Case aCase = Case.builder()
-                .caseId(id)
-                .creator(profile)
-                .build();
-
         // 4. save the case,
-        Case savedCase = caseRepository.save(aCase);
+         Case aCase = Case.builder()
+                 .caseId(id)
+                 .creator(profile)
+                 .build();
 
         // 5. Add the id inside the AvailCaseId
-        availCaseIdRepository.save(AvailCaseId.builder().caseId(id).build());
+        Case savedCase = caseRepository.save(aCase);
 
         // 6. return caseId
-        return savedCase.getCaseId();
+        return new CreateCaseResponseDto(savedCase.getCaseId(), savedCase.getCreatedOn());
     }
 
     @Override
@@ -226,6 +232,7 @@ public class CaseManagerServiceImplementation implements CaseManagerService {
         Users users = usersRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.CASEMANAGER_NOT_FOUND));
 
+
         CaseManagerProfile caseManagerProfile = repository.findByUser(users)
                 .orElseThrow(() -> new UsernameNotFoundException(Messages.CASEMANAGER_NOT_FOUND));
 
@@ -233,15 +240,29 @@ public class CaseManagerServiceImplementation implements CaseManagerService {
     }
 
 
+    // add few things for validation, firstly check if the caseId exists in the tempCase,
+    // and given that it is not expires, and is not taken, isComplete is false.
     @Override
-    public Case editCase(CaseDto caseDto, String email, String id) throws BadRequestException, ResourceNotFoundException {
+    public Case editCase(CaseDto caseDto, String email, String id) throws BadRequestException, CaseNotFoundException {
 
-        Case fetchedCase = caseRepository.findByCaseId(id)
-                .orElseThrow(() -> new ResourceNotFoundException(Messages.CASE_NOT_FOUND));
+        LocalDateTime twelveHoursAgo = LocalDateTime.now().minusHours(12);
+        LocalDateTime fiveMinAgo = LocalDateTime.now().minusMinutes(5);
 
-        if (!fetchedCase.getCreator().getUser().getEmail().equalsIgnoreCase(email)) {
+        TempCase tempCase = tempCaseRepository.findByCaseId(caseDto.getCaseId())
+                .orElseThrow(() -> new CaseNotFoundException(Messages.CASE_NOT_FOUND));
+
+        if(tempCase.isComplete() || !tempCase.getCreatedAt().isBefore(fiveMinAgo)){
             throw new BadRequestException(Messages.CASE_NOT_FOUND);
         }
+
+        Users users = usersRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.CASEMANAGER_NOT_FOUND));
+        CaseManagerProfile creator = repository.findByUser(users)
+                .orElseThrow(() -> new UsernameNotFoundException(Messages.CASEMANAGER_NOT_FOUND));
+
+        Case fetchedCase = new Case();
+        fetchedCase.setCaseId(tempCase.getCaseId());
+        fetchedCase.setCreator(creator);
 
         boolean isResearcher = false;
         List<ResearcherProfile> researcherProfiles = null;
@@ -450,7 +471,6 @@ public class CaseManagerServiceImplementation implements CaseManagerService {
         long count = caseRepository.count();
 
         String id = "CC" + year + month + day + count;
-        count++;
         return id;
     }
 }

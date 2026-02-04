@@ -20,4 +20,6 @@ public interface UsersRepository extends MongoRepository<Users, String> {
     Page<Users> findAllByRoleAndNameContainingIgnoreCaseOrRoleAndEmailContainingIgnoreCase(Role role, String name, Role role1, String email, Pageable pageable);
 
     Page<Users> findAllByIsActiveAndRole(boolean isActive, Role role, Pageable pageable);
+
+    boolean existsByEmail(String email);
 }

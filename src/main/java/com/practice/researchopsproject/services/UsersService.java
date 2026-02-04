@@ -1,20 +1,21 @@
 package com.practice.researchopsproject.services;
 
-import com.practice.researchopsproject.dto.PaginationResponseDto;
+import com.practice.researchopsproject.dto.PasswordResetTokenDto;
 import com.practice.researchopsproject.dto.UserDto;
-import com.practice.researchopsproject.dto.request.CreateUserRequestDto;
+import com.practice.researchopsproject.dto.request.ResetPasswordRequestDto;
 import com.practice.researchopsproject.dto.request.UserRequestDto;
 import com.practice.researchopsproject.dto.response.CaseManagerResponseDto;
 import com.practice.researchopsproject.dto.response.ResearcherResponseDto;
 import com.practice.researchopsproject.dto.response.UserResponseDto;
 import com.practice.researchopsproject.entity.Users;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import com.practice.researchopsproject.exception.customException.TokenExpireException;
+import com.practice.researchopsproject.exception.customException.TokenNotFoundException;
+import com.practice.researchopsproject.exception.customException.UserNameAlreadyTaken;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 
 public interface UsersService {
-    UserResponseDto saveUsers(UserRequestDto requestDto);
+    UserResponseDto saveUsers(UserRequestDto requestDto) throws UserNameAlreadyTaken;
 
     Users saveUsers(Users users);
 
@@ -26,11 +27,14 @@ public interface UsersService {
     Page<ResearcherResponseDto> getListofResearcher
             (Integer page, Integer limit, String sortBy, String direction, String searchBy);
 
-    UserResponseDto activateUserProfile(String id);
-
-    UserResponseDto deactivateUserProfile(String id);
-
     boolean checkProfileIsActive(String email);
 
     void changePassword(String email, String password);
+
+    void forgotPasswordMail(String email);
+
+    PasswordResetTokenDto fetchResetPasswordToken(String token) throws BadRequestException;
+
+    void setResetPassword(ResetPasswordRequestDto requestDto)
+            throws TokenNotFoundException, TokenExpireException, BadRequestException;
 }

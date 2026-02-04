@@ -5,10 +5,13 @@ import com.practice.researchopsproject.dto.InvitationDto;
 import com.practice.researchopsproject.dto.CaseDto;
 import com.practice.researchopsproject.dto.request.RegisterCaseManagerRequestDto;
 import com.practice.researchopsproject.dto.response.CaseResponseDto;
+import com.practice.researchopsproject.dto.response.CreateCaseResponseDto;
 import com.practice.researchopsproject.dto.response.ResearcherResponseDto;
 import com.practice.researchopsproject.entity.Case;
 import com.practice.researchopsproject.entity.CaseManagerProfile;
 import com.practice.researchopsproject.entity.Invitation;
+import com.practice.researchopsproject.entity.TempCase;
+import com.practice.researchopsproject.exception.customException.CaseNotFoundException;
 import com.practice.researchopsproject.exception.customException.ResourceNotFoundException;
 import com.practice.researchopsproject.exception.customException.TokenExpireException;
 import com.practice.researchopsproject.services.CaseManagerService;
@@ -38,8 +41,8 @@ import org.springframework.web.bind.annotation.*;
 public class CaseManagerController {
 
     private final CaseManagerService service;
-    private final JwtUtilities jwtUtilities;
     private final CaseService caseService;
+    private final JwtUtilities jwtUtilities;
 
 
     // validate the token itself first, if token expired then return error, else return successful response.
@@ -60,7 +63,7 @@ public class CaseManagerController {
 
 
     @PutMapping("/edit")
-    public ResponseEntity<?> editMyProfile( 
+    public ResponseEntity<?> editMyProfile(
             @RequestBody EditCaseManagerDto requestDto,
             HttpServletRequest request
     ) throws BadRequestException {
@@ -73,18 +76,14 @@ public class CaseManagerController {
     // accepts the email for each Researcher assigned in the case. as a List.
     @PostMapping("/create/case")
     public ResponseEntity<?> createCase(
-            HttpServletRequest request){
+            HttpServletRequest request) throws CaseNotFoundException {
 
-        String token = request.getHeader("Authorization");
-        token = token.substring(7);
-        String email = jwtUtilities.getEmailFromToken(token);
-        log.info("Email from Token found is, {}", email);
-
-        String caseId = service.createEmptyCase(email);
+        log.info("New Case Request has been created.");
+        TempCase response = caseService.createTempCase(request);
 //        Case response = service.createCase(requestDto, email);
 
-        log.info("New Case.java Has been created by CaseManager with email, {}", email);
-        return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_CREATED, caseId );
+        log.info("New Case.java Has been created by CaseManager with caseID, {}", response.getCaseId());
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_CREATED, response );
     }
 
 
@@ -94,7 +93,7 @@ public class CaseManagerController {
             @RequestParam(required = false, defaultValue = "10") int limit,
             @RequestParam(required = false, defaultValue = "name") String searchBy
     ){
-        if(page< 0)page =0; 
+        if(page< 0)page =0;
         if(limit<= 0)limit =10;
 
         Page<ResearcherResponseDto> researchers = service.getResearchers(page, limit);
@@ -115,7 +114,7 @@ public class CaseManagerController {
         log.info("Case.java Manager profile has been fetched successfully, with email {}", email);
         return ApiResponse.getResponse(HttpStatus.OK, Messages.CASEMANAGER_PROFILE_FETCHED,
                 Mappers.mapCaseManagerToCaseManagerResponseDto(caseManagerProfile)
-                );
+        );
     }
 
     @GetMapping("/edit")
@@ -132,13 +131,13 @@ public class CaseManagerController {
         return ApiResponse.getResponse(HttpStatus.OK, Messages.RESEARCHER_UPDATED, null);
     }
 
-    @PutMapping("/edit/case/{id}")
+    @PostMapping("/edit/case/{id}")
     public ResponseEntity<?> editCase(
             @RequestBody CaseDto caseDto,
             @PathVariable String id,
-            HttpServletRequest request ) throws BadRequestException, ResourceNotFoundException {
+            HttpServletRequest request ) throws BadRequestException, ResourceNotFoundException, CaseNotFoundException {
 
-        log.info("Edit case started");
+         log.info("Edit case started");
         String token = request.getHeader("Authorization");
         token = token.substring(7);
 
@@ -147,8 +146,26 @@ public class CaseManagerController {
         Case aCase = service.editCase(caseDto, email, id);
 
         log.info("Case.java with CaseId {}, has been updated successfully, with the CaseManager email as {}", id, email);
-        return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_UPDATED, Mappers.mapCaseToCaseDto(aCase) );
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_UPDATED, aCase );
+    }
 
+    @PostMapping("/case/save")
+    public ResponseEntity<?> saveCase(
+            @RequestBody CaseDto caseDto,
+            HttpServletRequest request ) throws BadRequestException, ResourceNotFoundException, CaseNotFoundException {
+
+        log.info("Edit case started");
+        String token = request.getHeader("Authorization");
+        token = token.substring(7);
+
+        String email = jwtUtilities.getEmailFromToken(token);
+
+        CaseDto aCase = caseService.saveCase(caseDto, email);
+
+        log.info("Case.java with CaseId {}, has been updated successfully, with the CaseManager email as {}",
+                aCase.getCaseId() ,
+                email);
+        return ApiResponse.getResponse(HttpStatus.OK, Messages.CASE_UPDATED, aCase );
     }
 
     @GetMapping("/cases")

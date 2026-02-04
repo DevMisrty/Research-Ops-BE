@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +44,7 @@ public class Case {
     private String copyrightRegistrationNumber;
 
     @CreatedDate
-    private LocalDate createdOn;
+    private LocalDateTime createdOn;
 
     private LocalDate copyrightRegistration;
 

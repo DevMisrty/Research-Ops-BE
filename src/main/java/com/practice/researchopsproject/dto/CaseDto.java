@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -33,7 +34,7 @@ public class CaseDto {
     private String titleOfWork;
     private String descriptionOfWork;
 
-    private LocalDate createdOn;
+    private LocalDateTime createdOn;
 
     private boolean hasRegisteredDocument;
 

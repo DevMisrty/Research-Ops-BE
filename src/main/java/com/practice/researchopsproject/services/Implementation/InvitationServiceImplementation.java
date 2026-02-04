@@ -13,6 +13,7 @@ import com.practice.researchopsproject.utilities.Messages;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +32,9 @@ public class InvitationServiceImplementation implements InvitationService {
     private final InvitationRepository repo;
     private final MailUtilities mail;
     private final ImageUploadUtilities imageUploadUtilities;
+
+    @Value("${frontend.baseurl}")
+    private String BASEURL;
 
     @Override
     public UUID createAndSaveInvitation(CreateUserRequestDto requestDto) {
@@ -78,7 +82,7 @@ public class InvitationServiceImplementation implements InvitationService {
         log.info("Saved Data {}", savedData);
 
 
-        String url = "http://localhost:5173/cm/register/"+savedData.getId().toString();
+        String url = BASEURL+savedData.getId().toString();
         log.info("url {},", url);
         mail.sendMail(savedData.getEmail(), "Create Credentials", url);
 
@@ -108,7 +112,7 @@ public class InvitationServiceImplementation implements InvitationService {
 
         Invitation savedData = repo.save(invite);
 
-        String url = "http://localhost:5173/rs/register/"+savedData.getId().toString();
+        String url = BASEURL+savedData.getId().toString();
         log.info("url {},", url);
         mail.sendMail(savedData.getEmail(), "Create Credentials", url);
 

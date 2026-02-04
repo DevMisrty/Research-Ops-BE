@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
@@ -31,7 +32,7 @@ public class CaseResponseDto {
     private String titleOfWork;
     private String descriptionOfWork;
 
-    private LocalDate createdOn;
+    private LocalDateTime createdOn;
 
     private String researcherId;
     private String researcherName;

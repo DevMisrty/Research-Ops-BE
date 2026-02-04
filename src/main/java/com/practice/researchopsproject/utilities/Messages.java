@@ -99,6 +99,9 @@ public class Messages {
     public static final String INVALID_TOKEN = "Token is Invalid";
     public static final String PASSWORD_DOESNT_MATCH = "Password and ConfirmPassword must match ";
     public static final String PASSWORD_UPDATED = "Password has been updated successfully.";
+    public static final String MAIL_SENT = "If this email is registered, you'll receive a link ";
+    public static final String PASSWORD_NOT_MATCH = "Password and ConfirmPassword don't match ";
+    public static final String USER_ALREADY_EXIST = "UserName has already been taken";
 
     //* ===================== Validation Messages ===================================*//
 

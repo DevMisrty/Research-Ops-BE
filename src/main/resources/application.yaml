@@ -25,6 +25,10 @@ spring:
       max-request-size: 10MB
       enabled: true
 
+frontend:
+  baseurl:
+    http://localhost:5173/
+
 logging:
   level:
     org.springframework.data.mongodb: DEBUG
@@ -32,3 +36,8 @@ logging:
 file:
   upload-dir: uploads/profileImages
   full-image-url: localhost:8080/uploads/
+
+case:
+  expire:
+    minutes: 5
+    hours: 12
