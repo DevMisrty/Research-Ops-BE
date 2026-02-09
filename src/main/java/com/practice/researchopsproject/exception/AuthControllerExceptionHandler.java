@@ -1,9 +1,6 @@
 package com.practice.researchopsproject.exception;
 
-import com.practice.researchopsproject.exception.customException.CaseNotFoundException;
-import com.practice.researchopsproject.exception.customException.InvaliTokenException;
-import com.practice.researchopsproject.exception.customException.ResourceNotFoundException;
-import com.practice.researchopsproject.exception.customException.TokenExpireException;
+import com.practice.researchopsproject.exception.customException.*;
 import com.practice.researchopsproject.utilities.ExceptionResponse;
 import com.practice.researchopsproject.utilities.Messages;
 import com.sun.jdi.request.InvalidRequestStateException;
@@ -43,6 +40,15 @@ public class AuthControllerExceptionHandler {
             errors.put(fieldName, errorMessage);
         });
         return ResponseEntity.badRequest().body(errors);
+    }
+
+    @ExceptionHandler(UserNameAlreadyTaken.class)
+    public ResponseEntity<?> handleUserNameAlreadyTaken(HttpServletRequest request, UserNameAlreadyTaken e){
+        return ExceptionResponse.exceptionResponse(
+                request.getRequestURI(),
+                e.getMessage(),
+                HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(Exception.class)

@@ -176,7 +176,7 @@ public class UsersServiceImplementation implements UsersService {
     }
 
     @Override
-    public void forgotPasswordMail(String email) {
+    public void forgotPasswordMail(String email) throws UsernameNotFoundException {
         if (!repo.existsByEmail(email)) {
             throw new UsernameNotFoundException(Messages.USER_NOT_FOUND);
         }

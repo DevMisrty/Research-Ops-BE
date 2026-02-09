@@ -1,11 +1,10 @@
 spring:
   data:
     mongodb:
+      uri: mongodb://localhost:27017/researchops
+      authentication-database: admin
       auto-index-creation: true
-  mongodb:
-    uri: mongodb://localhost:27017/researchops
-    representation:
-      uuid: standard
+
 
   mail:
     host: smtp.gmail.com

@@ -13,6 +13,7 @@ import com.practice.researchopsproject.exception.customException.TokenNotFoundEx
 import com.practice.researchopsproject.exception.customException.UserNameAlreadyTaken;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public interface UsersService {
     UserResponseDto saveUsers(UserRequestDto requestDto) throws UserNameAlreadyTaken;
@@ -31,7 +32,7 @@ public interface UsersService {
 
     void changePassword(String email, String password);
 
-    void forgotPasswordMail(String email);
+    void forgotPasswordMail(String email) throws UsernameNotFoundException;
 
     PasswordResetTokenDto fetchResetPasswordToken(String token) throws BadRequestException;
 

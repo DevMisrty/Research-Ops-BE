@@ -55,7 +55,7 @@ public class AuthController {
     // returns Jwt access token, and refresh tokens
     @PostMapping("/login")
     private ResponseEntity<?> Login(@Valid @RequestBody LoginRequestDto requestDto)
-            throws AuthenticationException {
+            throws AuthenticationException, UsernameNotFoundException {
         manager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         requestDto.getEmail(),
